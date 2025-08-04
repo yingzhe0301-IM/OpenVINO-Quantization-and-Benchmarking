@@ -28,7 +28,7 @@ All necessary scripts for this workflow are included in the repository:
 - `download_dataset.py` —— Download 300 COCO images for quantization calibration  
 - `export_models.py` —— Download YOLOv11n/s weights and convert to OpenVINO FP32  
 - `quantize_models.py` —— Run INT8 quantization on FP32 OpenVINO models  
-- `run_and_parse_benchmarks.py` —— Execute `benchmark_app` on all model variants and generate a summary table  
+- `run_and_parse_benchmarks.py` —— Execute `benchmark_app` and generate a summary table  
 
 ---
 
