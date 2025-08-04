@@ -28,7 +28,7 @@ This creates an isolated environment with the correct Python version.
 
 Step 2: Install System Drivers
 
-These commands install the correct Intel GPU compute drivers for Ubuntu.
+These commands install the correct Intel GPU compute drivers for Ubuntu 24.04.
 
 ```bash
 sudo apt update
@@ -46,7 +46,7 @@ This is a critical step that installs the complete OpenVINO runtime, including t
 conda install -c conda-forge openvino=2025.2.0 -y
 ```
 
-**Step 4: Install Other Python Packages**
+Step 4: Install Other Python Packages
 
 ```bash
 pip install ultralytics nncf click fiftyone opencv-python rich
@@ -109,3 +109,18 @@ This Python script executes the official benchmark_app tool for all 8 model vari
 ```bash
 python run_and_parse_benchmarks.py
 ```
+
+## 5. Example Benchmark Results
+
+After running the benchmark script, you should see something like this:
+
+| Model   | Device | Precision | Throughput (FPS) |
+|---------|--------|-----------|------------------|
+| yolo11n | GPU.0  | FP32      | 65.52            |
+| yolo11n | GPU.0  | INT8      | 89.37            |
+| yolo11s | GPU.0  | FP32      | 27.15            |
+| yolo11s | GPU.0  | INT8      | 42.67            |
+| yolo11n | CPU    | FP32      | 20.76            |
+| yolo11n | CPU    | INT8      | 40.07            |
+| yolo11s | CPU    | FP32      |  6.90            |
+| yolo11s | CPU    | INT8      | 16.23            |
