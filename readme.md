@@ -1,116 +1,122 @@
-# **OpenVINO Quantization and Benchmarking for Object Detection Models on Ubuntu 24.04**
+# OpenVINO Quantization and Benchmarking for Object Detection Models on Ubuntu 24.04
 
-## 1. Project Goal
+---
+
+## 🚀 Project Goal
 
 This project delivers a fully automated and reproducible pipeline for optimizing YOLO models with OpenVINO on Ubuntu 24.04. It guides users through the complete process—from model acquisition and conversion to INT8 quantization and performance benchmarking—targeting both CPU and integrated GPU (iGPU) inference.
 
-Although configuring Intel iGPU acceleration on Ubuntu is often challenging and error-prone, this workflow provides a reliable, step-by-step guide that ensures the environment is properly set up—allowing users to fully enable iGPU inference simply by following the documented steps.
+Although configuring Intel iGPU acceleration on Ubuntu can be challenging, this workflow provides a reliable, step-by-step guide that ensures the environment is properly set up—allowing users to fully enable iGPU inference simply by following the documented steps.
 
-## 2. Required Scripts
+---
 
-This project contains 4 core scripts. Please ensure they are all in the same directory:
- • `download_dataset.py`
- • `export_models.py`
- • `quantize_models.py`
- • `run_and_parse_benchmarks.py`
+## 🔧 Prerequisites
 
-## 3. Setup (One-Time Only)
+Before you begin, make sure you have:
 
-The following steps will create the correct software environment and install the necessary system drivers. This process only needs to be done once.
+- **Operating System**: Ubuntu 24.04 LTS  
+- **Conda**: version 4.x or newer (path examples assume Miniconda)
+- **Python**: 3.12
+- **GPU drivers**: Intel GPU drivers installed (see Setup below)  
+- **Network**: Internet access for downloading models and datasets  
 
-Step 1: Create the Conda Environment
-This creates an isolated environment with the correct Python version.
+---
 
-```bash
- conda create --name openvino_env python=3.12 -y
- conda activate openvino_env
-```
+## 📚 Required Scripts
 
-Step 2: Install System Drivers
+Place all of these scripts in the same directory:
 
-These commands install the correct Intel GPU compute drivers for Ubuntu 24.04.
+- `download_dataset.py` —— Download 300 COCO images for quantization calibration  
+- `export_models.py` —— Download YOLOv11n/s weights and convert to OpenVINO FP32  
+- `quantize_models.py` —— Run INT8 quantization on FP32 OpenVINO models  
+- `run_and_parse_benchmarks.py` —— Execute `benchmark_app` on all model variants and generate a summary table  
 
-```bash
-sudo apt update
-sudo apt install -y software-properties-common
-sudo add-apt-repository -y ppa:kobuk-team/intel-graphics
-sudo apt update
-sudo apt install -y libze-intel-gpu1 libze1 intel-metrics-discovery intel-opencl-icd clinfo intel-media-va-driver-non-free libmfx-gen1 libvpl2 libva-glx2 va-driver-all
-```
+---
 
-Step 3: Install OpenVINO via Conda
+## 🛠️ Setup (One-Time Only)
 
-This is a critical step that installs the complete OpenVINO runtime, including the GPU plugin.
+These steps install drivers and libraries—you only need to do this once.
 
-```bash
-conda install -c conda-forge openvino=2025.2.0 -y
-```
+1. **Create the Conda Environment**  
+   ```bash
+   conda create --name openvino_env python=3.12 -y
+   conda activate openvino_env
+   ```
 
-Step 4: Install Other Python Packages
+2. **Install Intel GPU Compute Drivers**  
+   ```bash
+   sudo apt update
+   sudo apt install -y software-properties-common
+   sudo add-apt-repository -y ppa:kobuk-team/intel-graphics
+   sudo apt update
+   sudo apt install -y \
+     libze-intel-gpu1 libze1 intel-metrics-discovery \
+     intel-opencl-icd clinfo intel-media-va-driver-non-free \
+     libmfx-gen1 libvpl2 libva-glx2 va-driver-all
+   ```
 
-```bash
-pip install ultralytics nncf click fiftyone opencv-python rich
-```
+3. **Install OpenVINO via Conda**  
+   ```bash
+   conda install -c conda-forge openvino=2025.2.0 -y
+   ```
 
-Step 5: Create Symbolic Link
+4. **Install Python Packages**  
+   ```bash
+   pip install ultralytics click fiftyone opencv-python rich
+   ```
 
-This crucial step connects the Conda environment to the system's GPU driver.
+5. **Link OpenCL ICD for Your Environment**  
+   ```bash
+   mkdir -p ~/miniconda3/envs/openvino_env/etc/OpenCL/vendors
+   ln -s /etc/OpenCL/vendors/intel.icd \
+       ~/miniconda3/envs/openvino_env/etc/OpenCL/vendors/intel.icd
+   ```
 
-```bash
-mkdir -p ~/miniconda3/envs/openvino_env/etc/OpenCL/vendors
-ln -s /etc/OpenCL/vendors/intel.icd ~/miniconda3/envs/openvino_env/etc/OpenCL/vendors/intel.icd
-```
+6. **Grant GPU Access and Reboot**  
+   ```bash
+   sudo gpasswd -a ${USER} render
+   sudo reboot
+   ```
 
-Step 6: Set Permissions and Reboot
+---
 
-This grants your user account permission to access the GPU hardware.
+## ⚡️ Execution Workflow
 
-```bash
-sudo gpasswd -a ${USER} render
-sudo reboot
-```
+After rebooting and re-activating the Conda environment (`conda activate openvino_env`), run each step from your project directory:
 
-## 4. Execution Workflow
+1. **Download the Calibration Dataset**  
+   ```bash
+   python download_dataset.py
+   ```
 
-After completing the one-time setup and rebooting, run the following commands in order from your project directory. Make sure you have activated the correct conda environment (`conda activate openvino_env`).
+2. **Export Models to OpenVINO FP32**  
+   ```bash
+   python export_models.py
+   ```
 
-Step 1: Download the Calibration Dataset
+3. **Quantize to INT8**  
+   ```bash
+   # Quantize yolo11n
+   python quantize_models.py \
+     --model_path yolo11n_openvino_model/yolo11n.xml \
+     --dataset_path coco-2017-images \
+     --output_path yolo11n_openvino_model_int8/yolo11n.xml
 
-This script downloads 300 images from the COCO dataset, which are needed for the quantization step.
+   # Quantize yolo11s
+   python quantize_models.py \
+     --model_path yolo11s_openvino_model/yolo11s.xml \
+     --dataset_path coco-2017-images \
+     --output_path yolo11s_openvino_model_int8/yolo11s.xml
+   ```
 
-```bash
-python download_dataset.py
-```
+4. **Run All Benchmarks**  
+   ```bash
+   python run_and_parse_benchmarks.py
+   ```
 
-Step 2: Download and Convert Models to OpenVINO FP32
+---
 
-This script automatically downloads yolo11n.pt and yolo11s.pt and then converts them to the standard FP32 OpenVINO format.
-
-```bash
-python export_models.py
-```
-
-Step 3: Quantize Models to INT8
-
-These commands use the downloaded images to convert the FP32 models into the optimized INT8 format.
-
-```bash
-# Quantize the 'yolo11n' model
-python quantize_models.py --model_path yolo11n_openvino_model/yolo11n.xml --dataset_path coco-2017-images --output_path yolo11n_openvino_model_int8/yolo11n.xml
-
-# Quantize the 'yolo11s' model
-python quantize_models.py --model_path yolo11s_openvino_model/yolo11s.xml --dataset_path coco-2017-images --output_path yolo11s_openvino_model_int8/yolo11s.xml
-```
-
-Step 4: Run All Benchmarks and Display Results
-
-This Python script executes the official benchmark_app tool for all 8 model variations, captures the results, and prints a clean, formatted summary table.
-
-```bash
-python run_and_parse_benchmarks.py
-```
-
-## 5. Example Benchmark Results
+## 📊 Example Benchmark Results
 
 After running the benchmark script, you should see something like this:
 
@@ -124,3 +130,14 @@ After running the benchmark script, you should see something like this:
 | yolo11n | CPU    | INT8      | 40.07            |
 | yolo11s | CPU    | FP32      |  6.90            |
 | yolo11s | CPU    | INT8      | 16.23            |
+
+> **Note:** Actual numbers may vary slightly depending on driver and hardware versions.
+
+---
+
+## 🔗 References
+
+- [OpenVINO Documentation](https://docs.openvino.ai/)  
+- [Ultralytics YOLOv11 Documentation](https://docs.ultralytics.com/models/yolo11/)  
+- [OpenVINO Issue #28892](https://github.com/openvinotoolkit/openvino/issues/28892)  
+- [RF-DETR Meets OpenVINO: Real-time INT8 Object Detection on an Intel iGPU](https://medium.com/latinxinai/rf-detr-meets-openvino-real-time-int8-object-detection-on-an-intel-igpu-da8ddba3de01)  
