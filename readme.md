@@ -16,7 +16,6 @@ Before you begin, make sure you have:
 
 - **Operating System**: Ubuntu 24.04 LTS  
 - **Conda**: version 4.x or newer (path examples assume Miniconda)
-- **Python**: 3.12
 - **GPU drivers**: Intel GPU drivers installed (see Setup below)  
 - **Network**: Internet access for downloading models and datasets  
 
