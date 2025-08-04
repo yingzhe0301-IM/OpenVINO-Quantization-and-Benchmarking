@@ -23,7 +23,7 @@ Before you begin, make sure you have:
 
 ## 📚 Required Scripts
 
-Place all of these scripts in the same directory:
+All necessary scripts for this workflow are included in the repository:
 
 - `download_dataset.py` —— Download 300 COCO images for quantization calibration  
 - `export_models.py` —— Download YOLOv11n/s weights and convert to OpenVINO FP32  
@@ -32,7 +32,7 @@ Place all of these scripts in the same directory:
 
 ---
 
-## 🛠️ Setup (One-Time Only)
+## 🛠️ Setup
 
 These steps install drivers and libraries—you only need to do this once.
 
@@ -130,7 +130,7 @@ After running the benchmark script, you should see something like this:
 | yolo11s | CPU    | FP32      |  6.90            |
 | yolo11s | CPU    | INT8      | 16.23            |
 
-> **Note:** Actual numbers may vary slightly depending on driver and hardware versions.
+> **Note:** Actual numbers may vary depending on driver and hardware versions.
 
 ---
 
