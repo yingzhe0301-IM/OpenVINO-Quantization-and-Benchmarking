@@ -15,8 +15,8 @@ Although configuring Intel iGPU acceleration on Ubuntu can be challenging, this 
 Before you begin, make sure you have:
 
 - **Operating System**: Ubuntu 24.04 LTS  
-- **Conda**: version 4.x or newer (path examples assume Miniconda)
-- **GPU drivers**: Intel GPU drivers installed (see Setup below)  
+- **Conda**: path examples assume Miniconda
+- **iGPU**: A machine with Intel GPU  
 - **Network**: Internet access for downloading models and datasets  
 
 ---
